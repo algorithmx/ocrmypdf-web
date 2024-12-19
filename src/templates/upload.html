@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCRmyPDF Webservice</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .alert-error {
+            background-color: #ffe6e6;
+            border: 1px solid #ffb3b3;
+            color: #cc0000;
+        }
+
+        .alert-success {
+            background-color: #e6ffe6;
+            border: 1px solid #b3ffb3;
+            color: #006600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="file"] {
+            background-color: #7434db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"] {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #2980b9;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .enhancement-settings {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .setting-group h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .sub-settings {
+            margin-left: 25px;
+            margin-top: 10px;
+        }
+
+        .sub-settings label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .sub-settings input[type="number"] {
+            width: 100px;
+            margin-left: 10px;
+        }
+
+        details summary {
+            cursor: pointer;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        details summary:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Upload a PDF</h2>
+
+        <div id="error-message" class="alert alert-error" style="display: none;">
+        </div>
+
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="args">Command line parameters</label>
+                <input type="text" id="args" name="params">
+            </div>
+
+            <div class="form-group">
+                <details>
+                    <summary>Image Enhancement Settings</summary>
+                    <div class="enhancement-settings">
+                        <!-- Resolution -->
+                        <div class="setting-group">
+                            <h4>Resolution</h4>
+                            <label>
+                                <input type="number" name="resolution" value="400" min="100" max="1000">
+                            </label>
+                        </div>
+                        <!-- Denoising -->
+                        <div class="setting-group">
+                            <h4>Denoising</h4>
+                            <label>
+                                <input type="checkbox" name="denoising_enabled" checked>
+                                Enable Denoising
+                            </label>
+                            <div class="sub-settings">
+                                <label>H Value:
+                                    <input type="number" name="denoising_h" value="10" min="1" max="100">
+                                </label>
+                                <label>Template Window Size:
+                                    <input type="number" name="denoising_template_window_size" value="9" min="3" max="21" step="2">
+                                </label>
+                                <label>Search Window Size:
+                                    <input type="number" name="denoising_search_window_size" value="21" min="3" max="51" step="2">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- CLAHE -->
+                        <div class="setting-group">
+                            <h4>CLAHE</h4>
+                            <label>
+                                <input type="checkbox" name="clahe_enabled" checked>
+                                Enable CLAHE
+                            </label>
+                            <div class="sub-settings">
+                                <label>Clip Limit:
+                                    <input type="number" name="clahe_clip_limit" value="3.0" min="0.1" max="10.0" step="0.1">
+                                </label>
+                                <label>Grid Size X:
+                                    <input type="number" name="clahe_grid_size_x" value="24" min="2" max="48">
+                                </label>
+                                <label>Grid Size Y:
+                                    <input type="number" name="clahe_grid_size_y" value="24" min="2" max="48">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Contrast -->
+                        <div class="setting-group">
+                            <h4>Contrast</h4>
+                            <label>
+                                <input type="checkbox" name="contrast_enabled" checked>
+                                Enable Contrast
+                            </label>
+                            <div class="sub-settings">
+                                <label>Alpha:
+                                    <input type="number" name="contrast_alpha" value="1.5" min="0.1" max="3.0" step="0.1">
+                                </label>
+                                <label>Beta:
+                                    <input type="number" name="contrast_beta" value="0" min="-100" max="100">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Sharpening -->
+                        <div class="setting-group">
+                            <h4>Sharpening</h4>
+                            <label>
+                                <input type="checkbox" name="sharpening_enabled" checked>
+                                Enable Sharpening
+                            </label>
+                            <div class="sub-settings">
+                                <label>Sigma:
+                                    <input type="number" name="sharpening_sigma" value="0.8" min="0.1" max="3.0" step="0.1">
+                                </label>
+                                <label>Amount:
+                                    <input type="number" name="sharpening_amount" value="1.0" min="0.1" max="3.0" step="0.1">
+                                </label>
+                                <label>Gaussian Weight:
+                                    <input type="number" name="sharpening_gaussian_weight" value="-0.1" min="-1.0" max="0" step="0.1">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Binarization -->
+                        <div class="setting-group">
+                            <h4>Binarization</h4>
+                            <label>
+                                <input type="checkbox" name="binarization_enabled" checked>
+                                Enable Binarization
+                            </label>
+                            <div class="sub-settings">
+                                <label>Block Size:
+                                    <input type="number" name="binarization_block_size" value="11" min="3" max="99" step="2">
+                                </label>
+                                <label>C Value:
+                                    <input type="number" name="binarization_c" value="2" min="-50" max="50">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+
+            <div class="form-group">
+                <label for="language">Document Language:</label>
+                <select name="language" id="language">
+                    <option value="eng">English</option>
+                    <option value="chi_sim">Chinese (Simplified)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="file">File to upload</label>
+                <input type="file" id="file" name="file" required accept=".pdf">
+            </div>
+
+            <input type="submit" value="Upload" id="submitBtn">
+        </form>
+
+        <div id="result-section" class="alert alert-success" style="display: none;">
+            File processed successfully! 
+            <a id="download-link" href="">Download processed file</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const errorDiv = document.getElementById('error-message');
+            const resultDiv = document.getElementById('result-section');
+            
+            // Disable submit button and show loading state
+            submitBtn.value = 'Processing...';
+            submitBtn.disabled = true;
+            errorDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Show success message and update download link
+                    resultDiv.style.display = 'block';
+                    const ocr_filename = data.filename.replace('.pdf', '.ocr.pdf');
+                    document.getElementById('download-link').href = `/download/${ocr_filename}`;
+                } else {
+                    // Show error message
+                    errorDiv.textContent = `Error: ${data.error}`;
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorDiv.textContent = 'Error: Network or server error occurred';
+                errorDiv.style.display = 'block';
+            } finally {
+                // Reset submit button
+                submitBtn.value = 'Upload';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

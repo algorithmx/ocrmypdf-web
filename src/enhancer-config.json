@@ -1,0 +1,29 @@
+{
+    "denoising": {
+        "enabled": true,
+        "h": 10,
+        "template_window_size": 9,
+        "search_window_size": 21
+    },
+    "clahe": {
+        "enabled": true,
+        "clip_limit": 3.0,
+        "tile_grid_size": [24, 24]
+    },
+    "contrast": {
+        "enabled": true,
+        "alpha": 1.5,
+        "beta": 0
+    },
+    "sharpening": {
+        "enabled": true,
+        "sigma": 0.8,
+        "amount": 1.0,
+        "gaussian_weight": -0.1
+    },
+    "binarization": {
+        "enabled": true,
+        "block_size": 11,
+        "c": 2
+    }
+} 
